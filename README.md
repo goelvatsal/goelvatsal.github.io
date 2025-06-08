@@ -1,4 +1,4 @@
-# AI Chat InterfaceAdd commentMore actions
+# AI Chat Interface
 
 A finance chabot AI website that provides a clean and intuitive interface for chatting with an AI. Built with React, TypeScript, and Tailwind CSS.
 
