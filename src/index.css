@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:bce6cbf50ba896924a28781b13be1d0d7ce76b65bf3a6904e00d62508d865a1f
-size 126
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+} 
