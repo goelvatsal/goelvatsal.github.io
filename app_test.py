@@ -1,6 +1,7 @@
 import streamlit as st
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
 import asyncio
+
 st.set_page_config(page_title="AI Backend", layout="centered")
 
 try:
@@ -16,7 +17,11 @@ def load_model():
     return pipe
 
 text_gen = load_model()
-st.title("Finance Concept Explainer")
+
+st.title("AI Finance Chatbot")
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
 user_q = st.text_area("Enter your finance question here:")
 
 if st.button("Get Explanation"):
@@ -32,7 +37,15 @@ if st.button("Get Explanation"):
                 temperature=0.6,
                 top_p=0.9,
                 repetition_penalty=1.2,
-                do_sample=True
+                do_sample=True,
             )
-            st.markdown("### Answer:")
-            st.write(result[0]["generated_text"].strip())
+            answer = result[0]["generated_text"].strip()
+            st.session_state.chat_history.append({"question": user_q.strip(), "answer": answer})
+
+if st.session_state.chat_history:
+    st.markdown("---")
+    st.markdown("### Conversation History")
+    for i, entry in enumerate(st.session_state.chat_history):
+        st.markdown(f"**Q{i+1}:** \"{entry['question']}\"")
+        st.markdown(f"**A{i+1}:** {entry['answer']}")
+        st.markdown("")
