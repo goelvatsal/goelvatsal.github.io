@@ -1,14 +1,23 @@
 import json
 import torch
+import os
+import requests
+import json
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline as hf_pipeline
 import uvicorn
 
-# Load dataset (optional)
+if not os.path.exists("finance_questions_formatted.json"):
+    print("Downloading JSON dataset...")
+    response = requests.get("https://github.com/goelvatsal/goelvatsal.github.io/releases/download/dataset/finance_questions_formatted.json")
+    with open("finance_questions_formatted.json", "wb") as f:
+        f.write(response.content)
+    print("Download complete.")
+
 with open("finance_questions_formatted.json", "r", encoding="utf-8") as f:
-   qa_pairs = json.load(f)
+    qa_pairs = json.load(f)
 
 # Load model and tokenizer
 tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-large")
@@ -20,7 +29,7 @@ text_gen = hf_pipeline("text2text-generation", model=model, tokenizer=tokenizer,
 # FastAPI setup
 app = FastAPI()
 
-# ✅ Enable CORS so your React frontend can call it
+# Enable CORS so React frontend can call it
 app.add_middleware(
    CORSMiddleware,
    allow_origins=["http://localhost:5173"],  # your Vite dev server
