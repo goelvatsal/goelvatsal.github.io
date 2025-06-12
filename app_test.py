@@ -8,7 +8,7 @@ try:
 except RuntimeError:
     asyncio.set_event_loop(asyncio.new_event_loop())
 
-@st.cache_resource
+@st.cache_resource(show_spinner=False)
 def load_model():
     tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-large")
     model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-large")
