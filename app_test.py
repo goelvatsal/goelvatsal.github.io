@@ -1,8 +1,7 @@
 import streamlit as st
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
-import json
+st.set_page_config(page_title="AI Backend", layout="centered")
 
-# Load model only once
 @st.cache_resource
 def load_model():
     tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-large")
@@ -11,36 +10,23 @@ def load_model():
     return pipe
 
 text_gen = load_model()
+st.title("Finance Concept Explainer")
+user_q = st.text_area("Enter your finance question here:")
 
-# Enable CORS manually
-st.set_page_config(page_title="AI Backend", layout="centered")
-st.title("Streamlit AI API")
-
-# Parse incoming POST request from fetch()
-if st.query_params.get("api") == "true":
-    import sys
-    import json
-
-    try:
-        body = st.runtime.scriptrunner.get_script_run_context().http_request.body
-        if not body:
-            st.error("No input body found.")
-            st.stop()
-
-        data = json.loads(body.decode())
-        user_q = data.get("user_q", "")
-        if not user_q:
-            st.error("No question found.")
-            st.stop()
-
-        prompt = f"Explain the following finance concept in a detailed and informative way:\n\n{user_q}"
-        result = text_gen(prompt, max_new_tokens=250, min_new_tokens=25, temperature=0.6, top_p=0.9, repetition_penalty=1.2, do_sample=True)
-        st.json({"answer": result[0]["generated_text"].strip()})
-
-    except Exception as e:
-        st.json({"answer": f"Error: {str(e)}"})
-    finally:
-        st.stop()
-
-# For dev testing
-st.write("This backend expects POST requests at `?api=true` with JSON body `{ user_q: string }`.")
+if st.button("Get Explanation"):
+    if not user_q.strip():
+        st.warning("Please enter a question before submitting.")
+    else:
+        with st.spinner("Generating answer..."):
+            prompt = f"Explain the following finance concept in a detailed and informative way:\n\n{user_q}"
+            result = text_gen(
+                prompt,
+                max_new_tokens=250,
+                min_new_tokens=25,
+                temperature=0.6,
+                top_p=0.9,
+                repetition_penalty=1.2,
+                do_sample=True
+            )
+            st.markdown("### Answer:")
+            st.write(result[0]["generated_text"].strip())
