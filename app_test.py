@@ -1,37 +1,46 @@
 import streamlit as st
-import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
+import json
 
-# Cache model loading to avoid reloading on every interaction
-@st.cache_resource(show_spinner=False)
+# Load model only once
+@st.cache_resource
 def load_model():
     tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-large")
     model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-large")
-    device = 0 if torch.cuda.is_available() else -1
-    text_gen = pipeline("text2text-generation", model=model, tokenizer=tokenizer, device=device)
-    return text_gen
+    pipe = pipeline("text2text-generation", model=model, tokenizer=tokenizer)
+    return pipe
 
 text_gen = load_model()
 
-st.title("Finance QA Bot")
+# Enable CORS manually
+st.set_page_config(page_title="AI Backend", layout="centered")
+st.title("Streamlit AI API")
 
-# Input from user
-user_q = st.text_input("Enter your finance question:")
+# Parse incoming POST request from fetch()
+if st.query_params.get("api") == "true":
+    import sys
+    import json
 
-if user_q:
-    prompt = f"Explain the following finance concept in a detailed and informative way:\n\n{user_q}"
-    with st.spinner("Generating answer..."):
-        try:
-            result = text_gen(
-                prompt,
-                max_new_tokens=250,
-                min_new_tokens=25,
-                temperature=0.6,
-                top_p=0.9,
-                repetition_penalty=1.2,
-                do_sample=True
-            )[0]["generated_text"]
-            st.markdown("### Answer:")
-            st.write(result.strip())
-        except Exception as e:
-            st.error(f"Oops, something went wrong: {str(e)}")
+    try:
+        body = st.runtime.scriptrunner.get_script_run_context().http_request.body
+        if not body:
+            st.error("No input body found.")
+            st.stop()
+
+        data = json.loads(body.decode())
+        user_q = data.get("user_q", "")
+        if not user_q:
+            st.error("No question found.")
+            st.stop()
+
+        prompt = f"Explain the following finance concept in a detailed and informative way:\n\n{user_q}"
+        result = text_gen(prompt, max_new_tokens=250, min_new_tokens=25, temperature=0.6, top_p=0.9, repetition_penalty=1.2, do_sample=True)
+        st.json({"answer": result[0]["generated_text"].strip()})
+
+    except Exception as e:
+        st.json({"answer": f"Error: {str(e)}"})
+    finally:
+        st.stop()
+
+# For dev testing
+st.write("This backend expects POST requests at `?api=true` with JSON body `{ user_q: string }`.")
