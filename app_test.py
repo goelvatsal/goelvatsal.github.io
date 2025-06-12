@@ -1,6 +1,12 @@
 import streamlit as st
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
+import asyncio
 st.set_page_config(page_title="AI Backend", layout="centered")
+
+try:
+    asyncio.get_running_loop()
+except RuntimeError:
+    asyncio.set_event_loop(asyncio.new_event_loop())
 
 @st.cache_resource
 def load_model():
