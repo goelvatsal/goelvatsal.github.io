@@ -1,3 +1,4 @@
+import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -10,44 +11,46 @@ type MessageProps = {
   }
 }
 
+// Extend with HTML attributes to satisfy ReactMarkdown typings
+type CodeProps = React.HTMLAttributes<HTMLElement> & {
+  inline?: boolean
+  className?: string
+  children?: React.ReactNode
+}
+
+const CodeBlock: React.FC<CodeProps> = ({ inline, className, children, ...props }) => {
+  const match = /language-(\w+)/.exec(className || '')
+  if (!inline && match) {
+    return (
+      <SyntaxHighlighter
+        language={match[1]}
+        PreTag="div"
+        style={atomDark as any} // cast to any to fix TS errors
+        {...props}
+      >
+        {String(children).replace(/\n$/, '')}
+      </SyntaxHighlighter>
+    )
+  }
+  return (
+    <code className={className} {...props}>
+      {children}
+    </code>
+  )
+}
+
 const ChatMessage = ({ message }: MessageProps) => {
   const isUser = message.role === 'user'
 
   return (
-    <div
-      className={clsx(
-        'flex w-full',
-        isUser ? 'justify-end' : 'justify-start'
-      )}
-    >
+    <div className={clsx('flex w-full', isUser ? 'justify-end' : 'justify-start')}>
       <div
         className={clsx(
           'max-w-[80%] rounded-lg p-4',
           isUser ? 'bg-blue-500 text-white' : 'bg-white shadow-md'
         )}
       >
-        <ReactMarkdown
-          className="prose prose-sm max-w-none"
-          components={{
-            code({ node, inline, className, children, ...props }) {
-              const match = /language-(\w+)/.exec(className || '')
-              return !inline && match ? (
-                <SyntaxHighlighter
-                  style={atomDark}
-                  language={match[1]}
-                  PreTag="div"
-                  {...props}
-                >
-                  {String(children).replace(/\n$/, '')}
-                </SyntaxHighlighter>
-              ) : (
-                <code className={className} {...props}>
-                  {children}
-                </code>
-              )
-            }
-          }}
-        >
+        <ReactMarkdown components={{ code: CodeBlock }}>
           {message.content}
         </ReactMarkdown>
       </div>
@@ -55,4 +58,4 @@ const ChatMessage = ({ message }: MessageProps) => {
   )
 }
 
-export default ChatMessage 
+export default ChatMessage
