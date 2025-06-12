@@ -29,14 +29,16 @@ if st.button("Get Explanation"):
         st.warning("Please enter a question before submitting.")
     else:
         with st.spinner("Generating answer..."):
-            prompt = f"Explain the following finance concept in a detailed and informative way:\n\n{user_q}"
+            prompt = (f"You are a financial analyist that's designed to help answer broad and general financial questions in a descriptive and helpful way. "
+                      f"Explain the following finance concept in a detailed and informative way and answer every part of this question and provide some examples:\n\n{user_q}")
+
             result = text_gen(
                 prompt,
-                max_new_tokens=250,
-                min_new_tokens=25,
-                temperature=0.6,
+                max_new_tokens=300,
+                min_new_tokens=40,
+                temperature=0.4, #lower makes it focused, higher makes it random
                 top_p=0.9,
-                repetition_penalty=1.2,
+                repetition_penalty=1.6,
                 do_sample=True,
             )
             answer = result[0]["generated_text"].strip()
