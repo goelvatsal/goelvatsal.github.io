@@ -35,9 +35,9 @@ if st.button("Get Explanation"):
                       f"Explain the following finance concept in a detailed and informative way and answer every part of this question and provide some examples:\n\n{user_q}")
             result = text_gen(
                 prompt,
-                max_new_tokens=200,
-                min_new_tokens=20,
-                temperature=0.55, #lower makes it focused, higher makes it random
+                max_new_tokens=250,
+                min_new_tokens=25,
+                temperature=0.50, #lower makes it focused, higher makes it random
                 top_p=0.9,
                 repetition_penalty=1.6,
                 do_sample=True,
