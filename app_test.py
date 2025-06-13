@@ -1,6 +1,6 @@
 import streamlit as st
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
-from optimum.onnxruntime import ORTModelForSeq2SeqLM
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from intel_extension_for_transformers.transformers.pipeline import pipeline
 import asyncio
 
 st.set_page_config(page_title="AI Backend", layout="centered")
@@ -13,8 +13,8 @@ except RuntimeError:
 @st.cache_resource(show_spinner=False)
 def load_model():
     tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-large")
-    model = ORTModelForSeq2SeqLM.from_pretrained("google/flan-t5-large", export=True)
-    pipe = pipeline("text2text-generation", model=model, tokenizer=tokenizer)
+    model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-large")
+    pipe = pipeline("text2text-generation", model=model)
     return pipe
 
 text_gen = load_model()
