@@ -7,3 +7,8 @@ torch
 pydantic
 accelerate
 datasets
+difflib
+json
+asyncio
+requests
+os
