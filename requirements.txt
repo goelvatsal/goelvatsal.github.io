@@ -5,4 +5,4 @@ uvicorn[standard]
 transformers
 torch
 pydantic
-intel-extension-for-transformers
+accelerate

@@ -1,6 +1,6 @@
 import streamlit as st
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-from intel_extension_for_transformers.transformers.pipeline import pipeline
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
+# from intel_extension_for_transformers.transformers.pipeline import pipeline
 import asyncio
 
 st.set_page_config(page_title="AI Backend", layout="centered")
@@ -14,7 +14,7 @@ except RuntimeError:
 def load_model():
     tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-large")
     model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-large")
-    pipe = pipeline("text2text-generation", model=model)
+    pipe = pipeline("text2text-generation", model=model, tokenizer=tokenizer)
     return pipe
 
 text_gen = load_model()
