@@ -1,5 +1,6 @@
 import streamlit as st
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
+from optimum.onnxruntime import ORTModelForSeq2SeqLM
 import asyncio
 
 st.set_page_config(page_title="AI Backend", layout="centered")
@@ -12,7 +13,7 @@ except RuntimeError:
 @st.cache_resource(show_spinner=False)
 def load_model():
     tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-large")
-    model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-large")
+    model = ORTModelForSeq2SeqLM.from_pretrained("google/flan-t5-large", export=True)
     pipe = pipeline("text2text-generation", model=model, tokenizer=tokenizer)
     return pipe
 
@@ -31,7 +32,6 @@ if st.button("Get Explanation"):
         with st.spinner("Generating answer..."):
             prompt = (f"You are a financial analyist that's designed to help answer broad and general financial questions in a descriptive and helpful way. "
                       f"Explain the following finance concept in a detailed and informative way and answer every part of this question and provide some examples:\n\n{user_q}")
-
             result = text_gen(
                 prompt,
                 max_new_tokens=300,
@@ -39,7 +39,7 @@ if st.button("Get Explanation"):
                 temperature=0.4, #lower makes it focused, higher makes it random
                 top_p=0.9,
                 repetition_penalty=1.6,
-                do_sample=True,
+                do_sample=False,
             )
             answer = result[0]["generated_text"].strip()
             st.session_state.chat_history.append({"question": user_q.strip(), "answer": answer})

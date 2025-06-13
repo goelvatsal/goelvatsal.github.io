@@ -5,3 +5,5 @@ uvicorn[standard]
 transformers
 torch
 pydantic
+onnxruntime
+optimum[onnxruntime]
