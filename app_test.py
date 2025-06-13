@@ -37,10 +37,10 @@ if st.button("Get Explanation"):
                 prompt,
                 max_new_tokens=200,
                 min_new_tokens=20,
-                temperature=0.45, #lower makes it focused, higher makes it random
+                temperature=0.55, #lower makes it focused, higher makes it random
                 top_p=0.9,
                 repetition_penalty=1.6,
-                do_sample=False,
+                do_sample=True,
             )
             answer = result[0]["generated_text"].strip()
             st.session_state.chat_history.append({"question": user_q.strip(), "answer": answer})
