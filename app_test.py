@@ -36,8 +36,8 @@ if st.button("Get Explanation"):
             result = text_gen(
                 prompt,
                 max_new_tokens=200,
-                min_new_tokens=40,
-                temperature=0.4, #lower makes it focused, higher makes it random
+                min_new_tokens=20,
+                temperature=0.45, #lower makes it focused, higher makes it random
                 top_p=0.9,
                 repetition_penalty=1.6,
                 do_sample=False,
