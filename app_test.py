@@ -1,5 +1,6 @@
 import streamlit as st
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
+import torch
 import asyncio
 
 st.set_page_config(page_title="AI Backend", layout="centered")
@@ -11,9 +12,10 @@ except RuntimeError:
 
 @st.cache_resource(show_spinner=False)
 def load_model():
-    tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-large")
-    model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-large")
-    pipe = pipeline("text2text-generation", model=model, tokenizer=tokenizer)
+    tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
+    model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-base", torch_dtype="auto")
+    model = torch.compile(model)
+    pipe = pipeline("text2text-generation", model=model, tokenizer=tokenizer, device=-1)
     return pipe
 
 text_gen = load_model()
@@ -33,7 +35,7 @@ if st.button("Get Explanation"):
                       f"Explain the following finance concept in a detailed and informative way and answer every part of this question and provide some examples:\n\n{user_q}")
             result = text_gen(
                 prompt,
-                max_new_tokens=300,
+                max_new_tokens=200,
                 min_new_tokens=40,
                 temperature=0.4, #lower makes it focused, higher makes it random
                 top_p=0.9,
