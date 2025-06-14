@@ -23,8 +23,9 @@ if st.button("Get Explanation"):
         st.warning("Please enter a question before submitting.")
     else:
         with st.spinner("Generating answer..."):
-            prompt = (f"You are a financial analyist that's designed to help answer broad and general financial questions in a descriptive and helpful way. "
-                      f"Explain the following finance concept in a detailed and informative way and answer every part of this question and provide some examples:\n\n{user_q}")
+            prompt = (f"You are a financial chatbot that's designed to help answer financial questions in an informative way. "
+                      f"Explain the following finance concept in a detailed and informative way and "
+                      f"answer every part of this question:\n\n{user_q}")
             result = text_gen(
                 prompt,
                 max_new_tokens=250,
