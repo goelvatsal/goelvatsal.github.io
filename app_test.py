@@ -1,14 +1,8 @@
 import streamlit as st
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, pipeline
 import torch
-import asyncio
 
 st.set_page_config(page_title="AI Backend", layout="centered")
-
-try:
-    asyncio.get_running_loop()
-except RuntimeError:
-    asyncio.set_event_loop(asyncio.new_event_loop())
 
 @st.cache_resource(show_spinner=False)
 def load_model():
@@ -19,13 +13,11 @@ def load_model():
     return pipe
 
 text_gen = load_model()
-
 st.title("AI Finance Chatbot")
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
 user_q = st.text_area("Enter your finance question here:")
-
 if st.button("Get Explanation"):
     if not user_q.strip():
         st.warning("Please enter a question before submitting.")
@@ -37,7 +29,7 @@ if st.button("Get Explanation"):
                 prompt,
                 max_new_tokens=250,
                 min_new_tokens=25,
-                temperature=0.50, #lower makes it focused, higher makes it random
+                temperature=0.50,
                 top_p=0.9,
                 repetition_penalty=1.6,
                 do_sample=True,
